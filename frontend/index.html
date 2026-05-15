@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document Q&A</title>
+  <meta name="description" content="Upload documents and ask questions. Get answers with cited sources." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+  <div class="app-layout">
+
+    <header class="header">
+
+      <span class="header-title">Document Q&A</span>
+      <span class="header-subtitle">— Ask questions about your PDFs</span>
+    </header>
+
+    <aside class="left-panel">
+      <div class="panel-section">
+        <div class="section-label">Collections</div>
+        <div class="collection-selector" style="flex-direction: column; gap: 8px;">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select class="select-input" id="collection-select" style="flex: 1;">
+              <option value="">Select a collection…</option>
+            </select>
+            <button class="btn btn-sm" id="delete-collection-btn" title="Delete selected collection"
+              style="background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); flex-shrink: 0;"
+              disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" class="text-input" id="new-collection-name" placeholder="New collection name…" />
+            <button class="btn btn-sm" id="create-collection-btn" title="Create collection">+</button>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="panel-section">
+        <div class="section-label">Add document</div>
+        <div class="upload-dropzone" id="dropzone">
+          <input type="file" class="upload-input" id="file-input" accept=".pdf" />
+          <div class="upload-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
+          <div class="upload-text">
+            <strong>Click or drag</strong> a PDF here
+          </div>
+          <div class="progress-bar-wrap" id="progress-wrap">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+          <div class="upload-status" id="upload-status"></div>
+        </div>
+      </div>
+
+      <div class="section-label" style="padding: 12px 16px 4px;">In this collection</div>
+      <div class="doc-list" id="doc-list">
+        <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 16px;">
+          Select a collection to see documents
+        </div>
+      </div>
+
+    </aside>
+
+    <main class="right-panel">
+
+      <div class="chat-header">
+        <div>
+          <div class="chat-collection-name" id="chat-collection-label">No collection selected</div>
+          <div class="chat-session-id" id="chat-session-label">Pick a collection to begin</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="new-session-btn" style="margin-left: auto;"
+          title="New conversation">New chat</button>
+      </div>
+
+      <div class="messages-area" id="messages-area">
+        <div class="empty-state" id="empty-state">
+
+          <div class="empty-state-title">Select a collection to start</div>
+          <div class="empty-state-hint">
+            Choose or create a collection on the left, upload a PDF, then ask a question.
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <textarea class="chat-textarea" id="chat-input" placeholder="Ask a question about your documents…"
+            rows="1"></textarea>
+          <button class="send-btn" id="send-btn" disabled title="Send">➤</button>
+        </div>
+        <div class="chat-hint">
+          Press <kbd
+            style="background:var(--bg-card);padding:1px 5px;border-radius:4px;border:1px solid var(--border);font-size:10px;">Enter</kbd>
+          to send,
+          <kbd
+            style="background:var(--bg-card);padding:1px 5px;border-radius:4px;border:1px solid var(--border);font-size:10px;">Shift+Enter</kbd>
+          for new line
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div class="modal-title" id="modal-title">Source</div>
+      <div class="modal-text" id="modal-text"></div>
+    </div>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+
+</html>

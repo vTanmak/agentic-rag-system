@@ -1,0 +1,136 @@
+{
+  "_description": "25 hand-crafted QA triplets for RAGAS baseline evaluation. Mix of single-hop, multi-hop, and should-refuse questions. Replace the sample answers below with answers from your actual uploaded PDF.",
+  "_instructions": "Run: uv run python -m scripts.run_ragas_baseline to populate baseline_scores.json",
+  "questions": [
+    {
+      "id": 1,
+      "type": "single_hop",
+      "question": "What is the main topic of this document?",
+      "ground_truth": "PLACEHOLDER: Replace with correct answer from your PDF",
+      "reference_context": "PLACEHOLDER: Replace with the exact paragraph from the PDF that answers this"
+    },
+    {
+      "id": 2,
+      "type": "single_hop",
+      "question": "Who is the intended audience for this document?",
+      "ground_truth": "PLACEHOLDER: Replace with correct answer from your PDF",
+      "reference_context": "PLACEHOLDER: Replace with the exact paragraph from the PDF that answers this"
+    },
+    {
+      "id": 3,
+      "type": "multi_hop",
+      "question": "How do the concepts introduced in section 1 relate to the examples given in section 3?",
+      "ground_truth": "PLACEHOLDER: Replace with correct answer — this should require reading two sections",
+      "reference_context": "PLACEHOLDER: Two paragraphs from different sections"
+    },
+    {
+      "id": 4,
+      "type": "multi_hop",
+      "question": "What evidence is provided to support the main argument, and how is it measured?",
+      "ground_truth": "PLACEHOLDER: Replace with correct answer",
+      "reference_context": "PLACEHOLDER: The supporting evidence paragraph"
+    },
+    {
+      "id": 5,
+      "type": "should_refuse",
+      "question": "What was the stock price of the company on January 15, 2020?",
+      "ground_truth": "The document does not contain stock price information.",
+      "reference_context": "This question should be refused — stock prices are not in a typical technical document"
+    },
+    {
+      "id": 6,
+      "type": "single_hop",
+      "question": "What methodology or approach is described in this document?",
+      "ground_truth": "PLACEHOLDER: Replace with correct answer from your PDF",
+      "reference_context": "PLACEHOLDER: The methodology section"
+    },
+    {
+      "id": 7,
+      "type": "single_hop",
+      "question": "What are the key findings or conclusions presented?",
+      "ground_truth": "PLACEHOLDER: Replace with correct answer",
+      "reference_context": "PLACEHOLDER: The conclusions paragraph"
+    },
+    {
+      "id": 8,
+      "type": "multi_hop",
+      "question": "How does the proposed solution address the problem identified in the introduction?",
+      "ground_truth": "PLACEHOLDER: Multi-hop answer",
+      "reference_context": "PLACEHOLDER: Introduction + solution section paragraphs"
+    },
+    {
+      "id": 9,
+      "type": "should_refuse",
+      "question": "What is the author's personal email address?",
+      "ground_truth": "The document does not contain personal contact information.",
+      "reference_context": "This should be refused — personal emails are not in academic/technical documents"
+    },
+    {
+      "id": 10,
+      "type": "single_hop",
+      "question": "What limitations or constraints are acknowledged in the document?",
+      "ground_truth": "PLACEHOLDER: Replace with correct answer",
+      "reference_context": "PLACEHOLDER: The limitations section"
+    },
+    {
+      "id": 11, "type": "single_hop",
+      "question": "PLACEHOLDER: Add a specific question from your PDF here",
+      "ground_truth": "PLACEHOLDER: Answer",
+      "reference_context": "PLACEHOLDER: Context"
+    },
+    {
+      "id": 12, "type": "single_hop",
+      "question": "PLACEHOLDER: Add question 12",
+      "ground_truth": "PLACEHOLDER: Answer",
+      "reference_context": "PLACEHOLDER: Context"
+    },
+    {
+      "id": 13, "type": "multi_hop",
+      "question": "PLACEHOLDER: Add multi-hop question 13",
+      "ground_truth": "PLACEHOLDER: Answer",
+      "reference_context": "PLACEHOLDER: Context"
+    },
+    {
+      "id": 14, "type": "multi_hop",
+      "question": "PLACEHOLDER: Add multi-hop question 14",
+      "ground_truth": "PLACEHOLDER: Answer",
+      "reference_context": "PLACEHOLDER: Context"
+    },
+    {
+      "id": 15, "type": "should_refuse",
+      "question": "PLACEHOLDER: Add a should-refuse question 15",
+      "ground_truth": "The document does not contain this information.",
+      "reference_context": "PLACEHOLDER: Context"
+    },
+    {
+      "id": 16, "type": "single_hop", "question": "PLACEHOLDER 16", "ground_truth": "PLACEHOLDER", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 17, "type": "single_hop", "question": "PLACEHOLDER 17", "ground_truth": "PLACEHOLDER", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 18, "type": "multi_hop", "question": "PLACEHOLDER 18", "ground_truth": "PLACEHOLDER", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 19, "type": "multi_hop", "question": "PLACEHOLDER 19", "ground_truth": "PLACEHOLDER", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 20, "type": "should_refuse", "question": "PLACEHOLDER 20", "ground_truth": "The document does not contain this information.", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 21, "type": "single_hop", "question": "PLACEHOLDER 21", "ground_truth": "PLACEHOLDER", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 22, "type": "multi_hop", "question": "PLACEHOLDER 22", "ground_truth": "PLACEHOLDER", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 23, "type": "should_refuse", "question": "PLACEHOLDER 23", "ground_truth": "The document does not contain this information.", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 24, "type": "single_hop", "question": "PLACEHOLDER 24", "ground_truth": "PLACEHOLDER", "reference_context": "PLACEHOLDER"
+    },
+    {
+      "id": 25, "type": "multi_hop", "question": "PLACEHOLDER 25", "ground_truth": "PLACEHOLDER", "reference_context": "PLACEHOLDER"
+    }
+  ]
+}
