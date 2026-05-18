@@ -53,8 +53,8 @@ uploads/
 # Model cache (sentence-transformers downloads here)
 .cache/
 
-# Non-core files (logs)
-not core/logs/
+# Non-core files (docs, PRD, eval datasets, logs)
+not core/
 
 # Generic data files & loose testing documents
 *.pdf
