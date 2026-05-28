@@ -13,6 +13,7 @@ from backend.eval.evaluator import evaluate_response, save_eval_scores
 from backend.models.database import Collection,ConversationSession,Message,async_session_factory,get_db_session
 from backend.models.schemas import ChatRequest
 from backend.services.langfuse_client import langfuse_client
+from backend.api.deps import get_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -21,17 +22,18 @@ router = APIRouter(prefix="/api/v1/chat", tags=["Chat"])
 @router.post("/stream")
 async def chat_stream(
     body: ChatRequest,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session)):
     session_id = body.session_id
     if session_id is None:
-        new_session = ConversationSession(collection_id=body.collection_id)
+        new_session = ConversationSession(collection_id=body.collection_id, user_id=user_id)
         db.add(new_session)
         await db.commit()
         await db.refresh(new_session)
         session_id = new_session.id
     else:
         existing_session = await db.get(ConversationSession, session_id)
-        if not existing_session:
+        if not existing_session or existing_session.user_id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Session {session_id} not found",
@@ -176,10 +178,11 @@ def _format_sse(data: dict) -> str:
 @router.get("/collections/{collection_id}/sessions")
 async def list_collection_sessions(
     collection_id: uuid.UUID,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session),
 ):
     collection = await db.get(Collection, collection_id)
-    if not collection:
+    if not collection or collection.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Collection {collection_id} not found",
@@ -205,10 +208,11 @@ async def list_collection_sessions(
 @router.get("/sessions/{session_id}/messages")
 async def get_session_messages(
     session_id: uuid.UUID,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session),
 ):
     session = await db.get(ConversationSession, session_id)
-    if not session:
+    if not session or session.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Session {session_id} not found",

@@ -35,7 +35,8 @@ class Collection(Base):
     __tablename__ = "collections"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String(100), nullable=False, unique=True)
+    user_id = Column(String(36), index=True, nullable=False)
+    name = Column(String(100), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     documents = relationship("Document", back_populates="collection", cascade="all, delete")
     sessions = relationship("ConversationSession", back_populates="collection", cascade="all, delete")
@@ -61,6 +62,7 @@ class ConversationSession(Base):
     __tablename__ = "conversation_sessions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(String(36), index=True, nullable=False)
     collection_id = Column(UUID(as_uuid=True), ForeignKey("collections.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     collection = relationship("Collection", back_populates="sessions")

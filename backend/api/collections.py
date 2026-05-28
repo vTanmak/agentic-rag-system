@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.database import Collection, Document, get_db_session
 from backend.models.schemas import CollectionCreate,CollectionListResponse,CollectionResponse
 from backend.services.qdrant_service import qdrant_service
+from backend.api.deps import get_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +20,14 @@ router = APIRouter(prefix="/api/v1/collections", tags=["Collections"])
 )
 async def create_collection(
     body: CollectionCreate,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session),
 ):
     existing = await db.execute(
-        select(Collection).where(Collection.name == body.name)
+        select(Collection).where(
+            Collection.name == body.name,
+            Collection.user_id == user_id
+        )
     )
     if existing.scalar_one_or_none():
         raise HTTPException(
@@ -30,18 +35,23 @@ async def create_collection(
             detail=f"A collection named '{body.name}' already exists",
         )
 
-    new_collection = Collection(name=body.name)
+    new_collection = Collection(name=body.name, user_id=user_id)
     db.add(new_collection)
     await db.flush()
     await db.refresh(new_collection)
 
-    logger.info(f"Created collection: {new_collection.name} ({new_collection.id})")
+    logger.info(f"Created collection: {new_collection.name} ({new_collection.id}) by user {user_id}")
     return new_collection
 
 @router.get("", response_model=CollectionListResponse)
-async def list_collections(db: AsyncSession = Depends(get_db_session)):
+async def list_collections(
+    user_id: str = Depends(get_user_id),
+    db: AsyncSession = Depends(get_db_session)
+):
     result = await db.execute(
-        select(Collection).order_by(Collection.created_at.desc())
+        select(Collection)
+        .where(Collection.user_id == user_id)
+        .order_by(Collection.created_at.desc())
     )
     collections = result.scalars().all()
 
@@ -53,10 +63,11 @@ async def list_collections(db: AsyncSession = Depends(get_db_session)):
 @router.get("/{collection_id}", response_model=CollectionResponse)
 async def get_collection(
     collection_id: uuid.UUID,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session),
 ):
     collection = await db.get(Collection, collection_id)
-    if not collection:
+    if not collection or collection.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Collection {collection_id} not found",
@@ -66,8 +77,13 @@ async def get_collection(
 @router.get("/{collection_id}/documents")
 async def list_collection_documents(
     collection_id: uuid.UUID,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session),
 ):
+    collection = await db.get(Collection, collection_id)
+    if not collection or collection.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Collection not found")
+
     result = await db.execute(
         select(Document)
         .where(Document.collection_id == collection_id)
@@ -90,10 +106,11 @@ async def list_collection_documents(
 @router.delete("/{collection_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_collection(
     collection_id: uuid.UUID,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session),
 ):
     collection = await db.get(Collection, collection_id)
-    if not collection:
+    if not collection or collection.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Collection {collection_id} not found",

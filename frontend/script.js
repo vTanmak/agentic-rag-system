@@ -7,11 +7,24 @@ const state = {
   is_streaming: false,
 };
 
+function get_or_create_user_id() {
+  let user_id = localStorage.getItem('guest_user_id');
+  if (!user_id) {
+    user_id = crypto.randomUUID();
+    localStorage.setItem('guest_user_id', user_id);
+  }
+  return user_id;
+}
+const guest_user_id = get_or_create_user_id();
+
 const API = {
   base: window.location.origin,
+  headers: {
+    'X-User-ID': guest_user_id
+  },
 
   async get(path) {
-    const resp = await fetch(this.base + path);
+    const resp = await fetch(this.base + path, { headers: this.headers });
     if (!resp.ok) throw new Error(await resp.text());
     return resp.json();
   },
@@ -19,7 +32,7 @@ const API = {
   async post(path, body) {
     const resp = await fetch(this.base + path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...this.headers, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     if (!resp.ok) throw new Error(await resp.text());
@@ -27,13 +40,17 @@ const API = {
   },
 
   async upload(path, form_data) {
-    const resp = await fetch(this.base + path, { method: 'POST', body: form_data });
+    const resp = await fetch(this.base + path, { 
+      method: 'POST', 
+      headers: this.headers,
+      body: form_data 
+    });
     if (!resp.ok) throw new Error(await resp.text());
     return resp.json();
   },
 
   async delete(path) {
-    const resp = await fetch(this.base + path, { method: 'DELETE' });
+    const resp = await fetch(this.base + path, { method: 'DELETE', headers: this.headers });
     if (!resp.ok && resp.status !== 204) throw new Error(await resp.text());
   },
 };
@@ -321,7 +338,10 @@ async function send_message() {
   try {
     const response = await fetch('/api/v1/chat/stream', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-User-ID': guest_user_id
+      },
       body: JSON.stringify({
         question,
         collection_id: state.selected_collection_id,

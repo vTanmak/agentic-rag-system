@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.database import Collection, Document, async_session_factory, get_db_session
 from backend.models.schemas import DocumentStatusResponse, DocumentUploadResponse
 from backend.services.ingestion_service import ingest_document
+from backend.api.deps import get_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +24,12 @@ router = APIRouter(prefix="/api/v1", tags=["Documents"])
 async def upload_document(
     collection_id: uuid.UUID,
     background_tasks: BackgroundTasks,
+    user_id: str = Depends(get_user_id),
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db_session),
 ):
     collection = await db.get(Collection, collection_id)
-    if not collection:
+    if not collection or collection.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Collection {collection_id} not found",
@@ -97,6 +99,7 @@ async def _run_ingestion_background(
 @router.get("/documents/{document_id}/status", response_model=DocumentStatusResponse)
 async def get_document_status(
     document_id: uuid.UUID,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session),
 ):
     doc = await db.get(Document, document_id)
@@ -105,6 +108,10 @@ async def get_document_status(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Document {document_id} not found",
         )
+        
+    collection = await db.get(Collection, doc.collection_id)
+    if not collection or collection.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Document not found")
 
     return DocumentStatusResponse(
         document_id=doc.id,
@@ -118,6 +125,7 @@ async def get_document_status(
 @router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_document(
     document_id: uuid.UUID,
+    user_id: str = Depends(get_user_id),
     db: AsyncSession = Depends(get_db_session),
 ):
     from backend.services.qdrant_service import qdrant_service
@@ -128,6 +136,10 @@ async def delete_document(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Document {document_id} not found",
         )
+
+    collection = await db.get(Collection, doc.collection_id)
+    if not collection or collection.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Document not found")
 
     await qdrant_service.delete_document_chunks(
         collection_id=str(doc.collection_id),
