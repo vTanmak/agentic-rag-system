@@ -50,23 +50,4 @@ jobs:
         run: uv run mypy backend/ --ignore-missing-imports --no-strict-optional
         continue-on-error: true  # Don't fail CI on type errors (warnings only for now)
 
-  # ===========================================================================
-  # Job 2: Deploy to Railway (only on main branch, only if tests pass)
-  # ===========================================================================
-  deploy:
-    name: Deploy to Railway
-    needs: test          # only runs if the 'test' job succeeded
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Install Railway CLI and deploy
-      # RAILWAY_TOKEN is stored in GitHub repository secrets
-      - name: Deploy to Railway
-        uses: bervProject/railway-deploy@main
-        with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: "agentic-rag-app"
