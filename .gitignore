@@ -23,6 +23,9 @@ uv.lock
 .env.local
 .env.*.local
 
+# GitHub Actions
+.github/
+
 # IDE
 .vscode/
 .idea/
