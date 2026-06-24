@@ -1,6 +1,6 @@
 # Agentic RAG System
 
-> **Live Demo:** [Add Railway URL after deployment]  
+> **Live Demo:** [https://agentic-rag-system-production-039e.up.railway.app/](https://agentic-rag-system-production-039e.up.railway.app/)
 > **Architecture:** FastAPI + LangGraph + MCP + Qdrant + RAGAS + Langfuse
 
 An end-to-end intelligent document Q&A system. Upload PDFs, ask questions — the AI agent retrieves relevant chunks, judges whether they're sufficient, re-retrieves with a refined query if not, then generates a cited answer that is automatically graded using RAGAS.
