@@ -33,7 +33,7 @@ async def evaluate_response(
         )
         answer_relevancy.strictness = 1
         from datasets import Dataset
-        from langchain_community.embeddings import HuggingFaceEmbeddings
+        from langchain_google_genai import GoogleGenerativeAIEmbeddings
         from langchain_groq import ChatGroq
 
         data = {
@@ -59,8 +59,9 @@ async def evaluate_response(
             api_key=settings.groq_api_key,
             temperature=0,
         )
-        judge_embeddings = HuggingFaceEmbeddings(
-            model_name="all-MiniLM-L6-v2"
+        judge_embeddings = GoogleGenerativeAIEmbeddings(
+            model="models/text-embedding-004",
+            google_api_key=settings.gemini_api_key,
         )
 
         loop = asyncio.get_event_loop()

@@ -129,9 +129,22 @@ async def _generate_sse_stream(
         yield _format_sse({"type": "generation_done"})
 
         if final_state.get("answer") and final_state.get("retrieved_chunks"):
-            # RAGAS evaluation disabled to prevent Railway Out-Of-Memory (OOM) crashes
-            # on the free tier when loading PyTorch HuggingFace models.
-            pass
+            context_texts = [c["text"] for c in final_state.get("retrieved_chunks", [])]
+            eval_scores = await evaluate_response(
+                question=initial_state["query"],
+                answer=final_state["answer"],
+                contexts=context_texts,
+            )
+
+            yield _format_sse({
+                "type": "eval",
+                "scores": eval_scores.model_dump(exclude_none=True),
+            })
+
+            if assistant_message_id:
+                asyncio.create_task(
+                    _save_scores_background(assistant_message_id, eval_scores, trace_id)
+                )
 
     except Exception as e:
         logger.error(f"Chat stream error: {e}")
