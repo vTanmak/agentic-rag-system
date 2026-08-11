@@ -6,7 +6,7 @@ from backend.config import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-EMBEDDING_DIM = 768
+EMBEDDING_DIM = 3072
 EMBEDDING_MODEL_NAME = "models/gemini-embedding-001"
 
 class EmbeddingService:
