@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 EMBEDDING_DIM = 768
-EMBEDDING_MODEL_NAME = "models/text-embedding-004"
+EMBEDDING_MODEL_NAME = "models/gemini-embedding-001"
 
 class EmbeddingService:
     def __init__(self):
