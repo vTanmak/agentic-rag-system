@@ -433,6 +433,13 @@ function handle_sse_event(event, el) {
       }
       break;
     }
+    case 'error': {
+      el.querySelector('.retrieval-indicator')?.remove();
+      bubble.querySelector('.typing-indicator')?.remove();
+      bubble.textContent = 'Error: ' + (event.message || 'Something went wrong');
+      bubble.style.color = '#ff6b6b';
+      break;
+    }
   }
 }
 
