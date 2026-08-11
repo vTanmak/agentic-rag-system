@@ -15,26 +15,37 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase, relationship
 from backend.config import get_settings
 
+import ssl as _ssl_module
+from urllib.parse import urlparse, urlencode, parse_qs, urlunparse
+
 settings = get_settings()
 
-def _fix_db_url(url: str) -> str:
-    """Neon gives postgres:// or postgresql:// — asyncpg needs postgresql+asyncpg://, strip sslmode too"""
+def _fix_db_url(url: str) -> tuple[str, dict]:
+    """Fix URL scheme for asyncpg and strip sslmode, returning (url, connect_args)"""
+    # Fix scheme
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql+asyncpg://", 1)
     elif url.startswith("postgresql://") and "+asyncpg" not in url:
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
-    # asyncpg doesn't accept sslmode — strip it and handle via connect_args
-    url = url.replace("?sslmode=require", "").replace("&sslmode=require", "").replace("?sslmode=disable", "")
-    return url
 
-_db_url = _fix_db_url(settings.database_url)
-_needs_ssl = "neon.tech" in settings.database_url or "sslmode=require" in settings.database_url
+    # Parse out query params so we can remove sslmode cleanly
+    parsed = urlparse(url)
+    params = parse_qs(parsed.query, keep_blank_values=True)
+    needs_ssl = params.pop("sslmode", ["disable"])[0] == "require" or "neon.tech" in url
+
+    new_query = urlencode({k: v[0] for k, v in params.items()})
+    clean_url = urlunparse(parsed._replace(query=new_query))
+
+    connect_args = {"ssl": _ssl_module.create_default_context()} if needs_ssl else {}
+    return clean_url, connect_args
+
+_db_url, _connect_args = _fix_db_url(settings.database_url)
 
 engine = create_async_engine(
     _db_url,
     pool_pre_ping=True,
     echo=(settings.app_env == "development"),
-    connect_args={"ssl": True} if _needs_ssl else {},
+    connect_args=_connect_args,
 )
 
 async_session_factory = async_sessionmaker(
