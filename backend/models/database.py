@@ -16,25 +16,23 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 from backend.config import get_settings
 
 import ssl as _ssl_module
-from urllib.parse import urlparse, urlencode, parse_qs, urlunparse
+from urllib.parse import urlparse, urlunparse
 
 settings = get_settings()
 
 def _fix_db_url(url: str) -> tuple[str, dict]:
-    """Fix URL scheme for asyncpg and strip sslmode, returning (url, connect_args)"""
+    """Fix URL scheme for asyncpg and strip ALL query params that asyncpg doesn't understand."""
+    needs_ssl = "sslmode=require" in url or "neon.tech" in url
+
     # Fix scheme
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql+asyncpg://", 1)
     elif url.startswith("postgresql://") and "+asyncpg" not in url:
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-    # Parse out query params so we can remove sslmode cleanly
+    # Strip ALL query params — asyncpg doesn't accept libpq params like sslmode, channel_binding etc.
     parsed = urlparse(url)
-    params = parse_qs(parsed.query, keep_blank_values=True)
-    needs_ssl = params.pop("sslmode", ["disable"])[0] == "require" or "neon.tech" in url
-
-    new_query = urlencode({k: v[0] for k, v in params.items()})
-    clean_url = urlunparse(parsed._replace(query=new_query))
+    clean_url = urlunparse(parsed._replace(query=""))
 
     connect_args = {"ssl": _ssl_module.create_default_context()} if needs_ssl else {}
     return clean_url, connect_args
