@@ -18,17 +18,23 @@ from backend.config import get_settings
 settings = get_settings()
 
 def _fix_db_url(url: str) -> str:
-    """Neon and most Postgres hosts give postgres:// or postgresql:// — asyncpg needs postgresql+asyncpg://"""
+    """Neon gives postgres:// or postgresql:// — asyncpg needs postgresql+asyncpg://, strip sslmode too"""
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql+asyncpg://", 1)
     elif url.startswith("postgresql://") and "+asyncpg" not in url:
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    # asyncpg doesn't accept sslmode — strip it and handle via connect_args
+    url = url.replace("?sslmode=require", "").replace("&sslmode=require", "").replace("?sslmode=disable", "")
     return url
 
+_db_url = _fix_db_url(settings.database_url)
+_needs_ssl = "neon.tech" in settings.database_url or "sslmode=require" in settings.database_url
+
 engine = create_async_engine(
-    _fix_db_url(settings.database_url),
+    _db_url,
     pool_pre_ping=True,
     echo=(settings.app_env == "development"),
+    connect_args={"ssl": True} if _needs_ssl else {},
 )
 
 async_session_factory = async_sessionmaker(
