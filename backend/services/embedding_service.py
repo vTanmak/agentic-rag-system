@@ -13,7 +13,7 @@ class EmbeddingService:
     def __init__(self):
         self._embeddings = GoogleGenerativeAIEmbeddings(
             model=EMBEDDING_MODEL_NAME,
-            google_api_key=settings.gemini_api_key.get_secret_value()
+            google_api_key=settings.gemini_api_key
         )
 
     async def embed_text(self, text: str) -> list[float]:
