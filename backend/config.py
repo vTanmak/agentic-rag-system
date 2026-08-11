@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-2.0-flash"
 
     groq_api_key: str = ""
-    groq_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
+    groq_model: str = "llama-3.3-70b-versatile"
 
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str = ""
