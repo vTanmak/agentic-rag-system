@@ -16,8 +16,17 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 from backend.config import get_settings
 
 settings = get_settings()
+
+def _fix_db_url(url: str) -> str:
+    """Neon and most Postgres hosts give postgres:// or postgresql:// — asyncpg needs postgresql+asyncpg://"""
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgresql://") and "+asyncpg" not in url:
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return url
+
 engine = create_async_engine(
-    settings.database_url,
+    _fix_db_url(settings.database_url),
     pool_pre_ping=True,
     echo=(settings.app_env == "development"),
 )
