@@ -11,17 +11,22 @@ EMBEDDING_MODEL_NAME = "models/text-embedding-004"
 
 class EmbeddingService:
     def __init__(self):
-        self._embeddings = GoogleGenerativeAIEmbeddings(
-            model=EMBEDDING_MODEL_NAME,
-            google_api_key=settings.gemini_api_key
-        )
+        self._embeddings = None
+
+    def _get_embeddings(self):
+        if self._embeddings is None:
+            self._embeddings = GoogleGenerativeAIEmbeddings(
+                model=EMBEDDING_MODEL_NAME,
+                google_api_key=settings.gemini_api_key
+            )
+        return self._embeddings
 
     async def embed_text(self, text: str) -> list[float]:
-        return await self._embeddings.aembed_query(text)
+        return await self._get_embeddings().aembed_query(text)
 
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
-        return await self._embeddings.aembed_documents(texts)
+        return await self._get_embeddings().aembed_documents(texts)
 
 embedding_service = EmbeddingService()
